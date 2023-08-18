@@ -1,0 +1,114 @@
+{
+  "address": "0x6b65b063f0B7aB26f2d53E8374F1a5032570464B",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "implementation_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0xf4ce1d1c02303a10eca6a356db80883413a50a7ecc85f49ec46b357f9b0c2dd0",
+  "receipt": {
+    "to": null,
+    "from": "0xA0768D6478977443cA62A10660a95b76b01AcA8d",
+    "contractAddress": "0x6b65b063f0B7aB26f2d53E8374F1a5032570464B",
+    "transactionIndex": 29,
+    "gasUsed": "130275",
+    "logsBloom": "0x00000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000008000000000080000000000000000000000000004000000000000000000800000000000000000000100000000000000000000000000000000000000000000000000000000000080000000000100000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000004000000000000000000001000000000000000000000000000000100000000000000000000000000000100000000000000000000000000000200000000000100000",
+    "blockHash": "0xd7db7b5f667387e862708797c2dfafd932ad886356f8f57e3ed6eae12e304b74",
+    "transactionHash": "0xf4ce1d1c02303a10eca6a356db80883413a50a7ecc85f49ec46b357f9b0c2dd0",
+    "logs": [
+      {
+        "transactionIndex": 29,
+        "blockNumber": 31998731,
+        "transactionHash": "0xf4ce1d1c02303a10eca6a356db80883413a50a7ecc85f49ec46b357f9b0c2dd0",
+        "address": "0x0000000000000000000000000000000000001010",
+        "topics": [
+          "0x4dfe1bbbcf077ddc3e01291eea2d5c70c2b422b415d95645b9adcfd678cb1d63",
+          "0x0000000000000000000000000000000000000000000000000000000000001010",
+          "0x000000000000000000000000a0768d6478977443ca62a10660a95b76b01aca8d",
+          "0x000000000000000000000000b9ede6f94d192073d8eaf85f8db677133d483249"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000001ad8fa967698120000000000000000000000000000000000000000000000003c3564aa9e09c8000000000000000000000000000000000000000000000005529057daf11045ed1c0000000000000000000000000000000000000000000000003c1a8bb007932fee0000000000000000000000000000000000000000000005529072b3eba6bc852e",
+        "logIndex": 123,
+        "blockHash": "0xd7db7b5f667387e862708797c2dfafd932ad886356f8f57e3ed6eae12e304b74"
+      }
+    ],
+    "blockNumber": 31998731,
+    "cumulativeGasUsed": "4431751",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x8223004B0C4243deECB60CD13560dbFB9FA6d11E"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "5af60085a1c5c6db5fea8cc7673027f3",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.12+commit.f00d7308\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"implementation_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"author\":\"SuperdaoTeam\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"details\":\"Sets the value for implementation\"}},\"title\":\"AppProxy\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Initialize Proxy for App\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/apps/AppProxy.sol\":\"AppProxy\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/proxy/Proxy.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.6.0) (proxy/Proxy.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev This abstract contract provides a fallback function that delegates all calls to another contract using the EVM\\n * instruction `delegatecall`. We refer to the second contract as the _implementation_ behind the proxy, and it has to\\n * be specified by overriding the virtual {_implementation} function.\\n *\\n * Additionally, delegation to the implementation can be triggered manually through the {_fallback} function, or to a\\n * different contract through the {_delegate} function.\\n *\\n * The success and return data of the delegated call will be returned back to the caller of the proxy.\\n */\\nabstract contract Proxy {\\n    /**\\n     * @dev Delegates the current call to `implementation`.\\n     *\\n     * This function does not return to its internal call site, it will return directly to the external caller.\\n     */\\n    function _delegate(address implementation) internal virtual {\\n        assembly {\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @dev This is a virtual function that should be overridden so it returns the address to which the fallback function\\n     * and {_fallback} should delegate.\\n     */\\n    function _implementation() internal view virtual returns (address);\\n\\n    /**\\n     * @dev Delegates the current call to the address returned by `_implementation()`.\\n     *\\n     * This function does not return to its internal call site, it will return directly to the external caller.\\n     */\\n    function _fallback() internal virtual {\\n        _beforeFallback();\\n        _delegate(_implementation());\\n    }\\n\\n    /**\\n     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other\\n     * function in the contract matches the call data.\\n     */\\n    fallback() external payable virtual {\\n        _fallback();\\n    }\\n\\n    /**\\n     * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if call data\\n     * is empty.\\n     */\\n    receive() external payable virtual {\\n        _fallback();\\n    }\\n\\n    /**\\n     * @dev Hook that is called before falling back to the implementation. Can happen as part of a manual `_fallback`\\n     * call, or as part of the Solidity `fallback` or `receive` functions.\\n     *\\n     * If overridden should call `super._beforeFallback()`.\\n     */\\n    function _beforeFallback() internal virtual {}\\n}\\n\",\"keccak256\":\"0xc130fe33f1b2132158531a87734153293f6d07bc263ff4ac90e85da9c82c0e27\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/StorageSlot.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/StorageSlot.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Library for reading and writing primitive types to specific storage slots.\\n *\\n * Storage slots are often used to avoid storage conflict when dealing with upgradeable contracts.\\n * This library helps with reading and writing to such slots without the need for inline assembly.\\n *\\n * The functions in this library return Slot structs that contain a `value` member that can be used to read or write.\\n *\\n * Example usage to set ERC1967 implementation slot:\\n * ```\\n * contract ERC1967 {\\n *     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;\\n *\\n *     function _getImplementation() internal view returns (address) {\\n *         return StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;\\n *     }\\n *\\n *     function _setImplementation(address newImplementation) internal {\\n *         require(Address.isContract(newImplementation), \\\"ERC1967: new implementation is not a contract\\\");\\n *         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;\\n *     }\\n * }\\n * ```\\n *\\n * _Available since v4.1 for `address`, `bool`, `bytes32`, and `uint256`._\\n */\\nlibrary StorageSlot {\\n    struct AddressSlot {\\n        address value;\\n    }\\n\\n    struct BooleanSlot {\\n        bool value;\\n    }\\n\\n    struct Bytes32Slot {\\n        bytes32 value;\\n    }\\n\\n    struct Uint256Slot {\\n        uint256 value;\\n    }\\n\\n    /**\\n     * @dev Returns an `AddressSlot` with member `value` located at `slot`.\\n     */\\n    function getAddressSlot(bytes32 slot) internal pure returns (AddressSlot storage r) {\\n        assembly {\\n            r.slot := slot\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns an `BooleanSlot` with member `value` located at `slot`.\\n     */\\n    function getBooleanSlot(bytes32 slot) internal pure returns (BooleanSlot storage r) {\\n        assembly {\\n            r.slot := slot\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns an `Bytes32Slot` with member `value` located at `slot`.\\n     */\\n    function getBytes32Slot(bytes32 slot) internal pure returns (Bytes32Slot storage r) {\\n        assembly {\\n            r.slot := slot\\n        }\\n    }\\n\\n    /**\\n     * @dev Returns an `Uint256Slot` with member `value` located at `slot`.\\n     */\\n    function getUint256Slot(bytes32 slot) internal pure returns (Uint256Slot storage r) {\\n        assembly {\\n            r.slot := slot\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0xfe1b7a9aa2a530a9e705b220e26cd584e2fbdc9602a3a1066032b12816b46aca\",\"license\":\"MIT\"},\"contracts/apps/AppProxy.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\n\\npragma solidity ^0.8.12;\\n\\nimport \\\"@openzeppelin/contracts/proxy/Proxy.sol\\\";\\nimport \\\"./UpgradeableApp.sol\\\";\\n\\n/**\\n * @title AppProxy\\n * @author SuperdaoTeam\\n * @notice Initialize Proxy for App\\n *\\n */\\ncontract AppProxy is Proxy, UpgradeableApp {\\n    uint256[100] private __gap;\\n\\n    /**\\n     * @dev Sets the value for implementation\\n     *\\n     */\\n    constructor(address implementation_) {\\n        _getImplementationSlot().value = implementation_;\\n    }\\n\\n    /**\\n     * @dev Finds value for Implementation Slot\\n     *\\n     */\\n    function _implementation() internal view override returns (address) {\\n        return _getImplementationSlot().value;\\n    }\\n}\\n\",\"keccak256\":\"0x275d12d2cbb09cb3d275b6d388f19006350e9d2892c221967bc25598fe397c2d\",\"license\":\"UNLICENSED\"},\"contracts/apps/UpgradeableApp.sol\":{\"content\":\"// SPDX-License-Identifier: UNLICENSED\\n\\npragma solidity ^0.8.12;\\n\\nimport \\\"@openzeppelin/contracts/utils/StorageSlot.sol\\\";\\n\\n/**\\n * @title UpgradeableApp\\n * @notice Defines the basic implementation slot fo.\\n *\\n **/\\ncontract UpgradeableApp {\\n    bytes32 private constant _IMPLEMENTATION_SLOT =\\n        bytes32(uint256(keccak256(\\\"co.superdao.app.proxy.implementation\\\")) - 1);\\n\\n    uint256[100] private __gap;\\n\\n    // @dev Finds value for Implementation Slot\\n    function _getImplementationSlot() internal pure returns (StorageSlot.AddressSlot storage) {\\n        return StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT);\\n    }\\n}\\n\",\"keccak256\":\"0x3f00807e755d2b7711891f7c25fd7281593daf254864f2cc8a4ff5b0ff09fc8c\",\"license\":\"UNLICENSED\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516101f33803806101f383398101604081905261002f916100a6565b8061003861005c565b80546001600160a01b0319166001600160a01b0392909216919091179055506100fb565b600061009e61008c60017f797d7c7d0df25d67e029b044c5bcb2b89d68f6483382b5f85e64485950ed88d16100d6565b60001b6100a360201b6100211760201c565b905090565b90565b6000602082840312156100b857600080fd5b81516001600160a01b03811681146100cf57600080fd5b9392505050565b6000828210156100f657634e487b7160e01b600052601160045260246000fd5b500390565b60ea806101096000396000f3fe608060405236601057600e6013565b005b600e5b601f601b6024565b603b565b565b90565b6000602c605e565b546001600160a01b0316919050565b3660008037600080366000845af43d6000803e8080156059573d6000f35b3d6000fd5b6000608b602160017f797d7c7d0df25d67e029b044c5bcb2b89d68f6483382b5f85e64485950ed88d16090565b905090565b60008282101560af57634e487b7160e01b600052601160045260246000fd5b50039056fea2646970667358221220a4c2b7c6d6e429ae3263c669f1a7acda7decdce7a195aa61793170800c51b25764736f6c634300080c0033",
+  "deployedBytecode": "0x608060405236601057600e6013565b005b600e5b601f601b6024565b603b565b565b90565b6000602c605e565b546001600160a01b0316919050565b3660008037600080366000845af43d6000803e8080156059573d6000f35b3d6000fd5b6000608b602160017f797d7c7d0df25d67e029b044c5bcb2b89d68f6483382b5f85e64485950ed88d16090565b905090565b60008282101560af57634e487b7160e01b600052601160045260246000fd5b50039056fea2646970667358221220a4c2b7c6d6e429ae3263c669f1a7acda7decdce7a195aa61793170800c51b25764736f6c634300080c0033",
+  "devdoc": {
+    "author": "SuperdaoTeam",
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "details": "Sets the value for implementation"
+      }
+    },
+    "title": "AppProxy",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "notice": "Initialize Proxy for App",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 10680,
+        "contract": "contracts/apps/AppProxy.sol:AppProxy",
+        "label": "__gap",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_array(t_uint256)100_storage"
+      },
+      {
+        "astId": 7953,
+        "contract": "contracts/apps/AppProxy.sol:AppProxy",
+        "label": "__gap",
+        "offset": 0,
+        "slot": "100",
+        "type": "t_array(t_uint256)100_storage"
+      }
+    ],
+    "types": {
+      "t_array(t_uint256)100_storage": {
+        "base": "t_uint256",
+        "encoding": "inplace",
+        "label": "uint256[100]",
+        "numberOfBytes": "3200"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

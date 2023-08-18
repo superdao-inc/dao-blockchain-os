@@ -1,0 +1,30 @@
+export const SaleAppIds = {
+    ERC721_OPEN_SALE: "ERC721_OPEN_SALE",
+    ERC721_WHITELIST_SALE: "ERC721_WHITELIST_SALE",
+}
+
+export const ClaimAppIds = {
+    ERC721_WHITELIST_CLAIM: "ERC721_WHITELIST_CLAIM",
+    ERC721_LINK_CLAIM: "ERC721_LINK_CLAIM",
+}
+
+export const ProtocolApps = {
+    UNISWAP_V3_ORACLE: "UNISWAP_V3_ORACLE",
+    UPDATE_MANAGER: "UPDATE_MANAGER",
+    DAO_CONSTRUCTOR: "DAO_CONSTRUCTOR",
+    CALL_FORWARDER: "CALL_FORWARDER",
+}
+
+export const AppsIds = {
+    KERNEL: "KERNEL",
+    SUDO: "SUDO",
+    ERC721: "ERC721",
+    ADMIN: "ADMIN", // TODO: renamde admin to ADMIN_CONTROLLER
+    RELEASE_MANAGER: "RELEASE_MANAGER",
+    UPDATE_MANAGER: "UPDATE_MANAGER",
+    ...SaleAppIds,
+    ...ClaimAppIds,
+}
+
+export const DOMAIN = "Superdao"
+export const VERSION = "v2.0.22"

@@ -1,0 +1,12 @@
+{
+  "name": "@superdao/os",
+  "version": "0.0.0",
+  "main": "./dist/typechain-types/index.ts",
+  "types": "./dist/typechain-types/index.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "npm:publish": "sh ./publish.sh"
+  }
+}

@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "strict": true,
+        "outDir": "dist",
+
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "baseUrl" : "./",
+        "paths": {
+            "@deployments/*": ["deployments/*"],
+            "@typechain-types/*": ["typechain-types/*"],
+            "@abis/*": ["artifacts/contracts/*"],
+            "@test/*": ["modules/tests/*"],
+            "@deploy/*": ["modules/deploy/*"],
+            "@scripts/*": ["modules/scripts/*"],
+            "@tasks/*": ["modules/tasks/*"],
+            "@constants/*": ["modules/helpers/constants/*"],
+            "@utils/*": ["modules/helpers/utils/*"],
+        }
+    },
+    "include": [
+        "test/**/*.ts",
+        "typechain-types/**/*.ts",
+        "scripts/**/*.ts",
+        "tasks/**/*.ts",
+        "modules/**/*.ts"
+        // "deploy/**/*.ts"
+    ],
+    "files": ["./hardhat.config.ts"]
+}
