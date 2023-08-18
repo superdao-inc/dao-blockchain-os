@@ -1,0 +1,53 @@
+# General
+.DS_Store
+.swp
+
+# IDE
+.vscode
+.idea
+
+# Environment
+.env
+keystore
+
+# Node modules
+node_modules
+
+# Deployments
+deployments/*
+!deployments/mainnet
+!deployments/stage
+
+# Coverage
+coverage
+coverage.json
+
+# Hardhat stuff
+build
+artifacts
+cache
+
+# Scripts
+scripts/private
+scripts/output
+
+# Scripts modular
+modules/scripts/private
+modules/scripts/output
+
+# Tasks modular
+modules/tasks/private
+
+# Yarn stuff
+yarn-error.log
+
+# TypeScript stuff
+dist
+
+# Typechain
+typechain-types
+
+.pnpm-debug.log
+
+# Docs
+docs

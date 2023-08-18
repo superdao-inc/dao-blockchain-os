@@ -1,0 +1,69 @@
+# Solidity
+contracts
+
+# General
+.DS_Store
+.swp
+
+# IDE
+.vscode
+.idea
+
+# Environment
+.env
+keystore
+
+# Node modules
+node_modules
+
+# Deployments
+deployments/*
+!deployments/mainnet
+!deployments/stage
+
+# Coverage
+coverage
+coverage.json
+
+# Hardhat stuff
+build
+artifacts
+cache
+
+# Scripts
+scripts/private
+scripts/output
+
+# Yarn stuff
+yarn-error.log
+
+# TypeScript stuff
+dist
+
+# Typechain
+typechain-types
+
+.pnpm-debug.log
+
+# Docs
+docs
+
+# Artifacts
+packages
+deployments
+
+# Config files
+.pnpm-debug.log
+pnpm-lock.yaml
+pnpm-workspace.yaml
+package.json
+tsconfig.json
+.gitignore
+.eslintignore
+.prettierignore
+.solcover.js
+.solhint.json
+.eslintrc.json
+.prettierr
+.husky
+tasks/inputs

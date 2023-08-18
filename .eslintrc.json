@@ -1,0 +1,38 @@
+{
+    "env": {
+        "browser": false,
+        "es2021": true,
+        "mocha": true,
+        "node": true
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "chai-friendly"
+    ],
+    "extends": [
+        "standard",
+        "plugin:prettier/recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        "semi": [
+            "error"
+        ],
+        "prettier/prettier": [
+            "error",
+            {
+                "semi": false
+            }
+        ],
+        "node/no-unsupported-features/es-syntax": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "camelcase": "warn",
+        "chai-friendly/no-unused-expressions": "error",
+        "no-unused-expressions": "off",
+        "n/no-deprecated-api": "warn"
+    }
+}

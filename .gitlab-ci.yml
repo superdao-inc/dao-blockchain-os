@@ -1,0 +1,144 @@
+default:
+  image: $GCP_REGISTRY_URL/werf/ci-nodejs:latest
+  tags: [lint]
+
+stages:
+  - compile
+  - lint
+  - unittest
+  - reports
+  - integration-test
+  - cd
+
+.hardhat-job-template: &hardhat-job-template
+  before_script:
+    - pnpm install --frozen-lockfile --prefer-offline
+  artifacts:
+    paths:
+      - typechain-types/
+      - artifacts/
+      - cache/
+
+.general-dependencies-template: &general-dependencies-template
+  only:
+    - merge_requests
+    - dev
+    - tags
+
+# Compile Contracts & Store Artifacts
+compile:
+  <<: *hardhat-job-template
+  <<: *general-dependencies-template
+  stage: compile
+  script:
+    - pnpm compile
+    - pnpm typechain
+
+# Lint Check
+lint:
+  <<: *hardhat-job-template
+  <<: *general-dependencies-template
+  stage: lint
+  needs: [compile]
+  script:
+    - pnpm lint
+
+# Run Unittest
+unittest:
+  <<: *hardhat-job-template
+  <<: *general-dependencies-template
+  stage: unittest
+  needs: [lint]
+  script:
+    - pnpm test
+
+# Form coverage report for visualization
+reports:
+  <<: *hardhat-job-template
+  stage: reports
+  needs: [unittest]
+  coverage: '/Statements.*?(\d+(?:\.\d+)?)%/'
+  script:
+    - pnpm coverage
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+
+  only:
+    - merge_requests
+    - dev
+
+# On fork deploy impls, update them in update manager and checks upgradability finally
+# On failure it generates files in /modules/tasks/reports/error*.json
+upgradability-test:
+  <<: *hardhat-job-template
+  stage: integration-test
+  needs: [unittest]
+  variables:
+    MAINNET_RPC: $MAINNET_RPC_INTEGRATION_TEST
+    FORKING_MODE: "STAGE"
+    FORKING_MODE_USE_SOURCE_DEPLOYMENTS: "true"
+    MAINNET_UPDATE_MANAGERS_JSON: '[{"contractAddress" : "0xDeB6b06E22A5BdFB2d42000074B46F9C2c3861FE"},{"contractAddress" : "0x41c98A711273800f4275d7eA03161B1810Cf2D03"},{"contractAddress" : "0x0b99dbF8F3d81476BDeE982219a260d01E4E94f0"},{"contractAddress" : "0x2164e9Fa6004896986d2bCc7AC6Ee10A8ad07E00"},{"contractAddress" : "0x99e29A22F56c954Ac51261B69130A88d4ceFf145"},{"contractAddress" : "0xde11959E53ed7bA2B7Ed295c4CE00BDcAd42F587"},{"contractAddress" : "0xe087653B76e2382f55312E43fB0cBD8527527537"},{"contractAddress" : "0x6Eb2F80717F30B2D178443F1Bc919171490d7b97"}]'
+    MAINNET_PROTOCOL_FILE_JSON: '[{"contractAddress":"0xDeB6b06E22A5BdFB2d42000074B46F9C2c3861FE","app":"UPDATE_MANAGER"},{"contractAddress":"0x41c98A711273800f4275d7eA03161B1810Cf2D03","app":"UPDATE_MANAGER"},{"contractAddress":"0x0b99dbF8F3d81476BDeE982219a260d01E4E94f0","app":"UPDATE_MANAGER"},{"contractAddress":"0x2164e9Fa6004896986d2bCc7AC6Ee10A8ad07E00","app":"UPDATE_MANAGER"},{"contractAddress":"0x99e29A22F56c954Ac51261B69130A88d4ceFf145","app":"UPDATE_MANAGER"},{"contractAddress":"0xde11959E53ed7bA2B7Ed295c4CE00BDcAd42F587","app":"UPDATE_MANAGER"},{"contractAddress":"0xe087653B76e2382f55312E43fB0cBD8527527537","app":"UPDATE_MANAGER"},{"contractAddress":"0x6Eb2F80717F30B2D178443F1Bc919171490d7b97","app":"UPDATE_MANAGER"},{"contractAddress":"0xC7c3c83B9e89645A2616ea94236FD052667fa4a1","app":"DAO_CONSTRUCTOR"},{"contractAddress":"0x08205A2a16963b00e29F67208820BC53fB31Df55","app":"DAO_CONSTRUCTOR"}]'
+    STAGE_UPDATE_MANAGERS_JSON: '[{"contractAddress":"0x39048a9a1803beF19e65B32f3f1136C370145F92"}]'
+    STAGE_PROTOCOL_FILE_JSON: '[{"contractAddress":"0x39048a9a1803beF19e65B32f3f1136C370145F92","app":"UPDATE_MANAGER"},{"contractAddress":"0x61DedCcE3a184Fb6b528dbeC9026cf1fa3B14907","app":"DAO_CONSTRUCTOR"}]'
+  script:
+    - echo $STAGE_UPDATE_MANAGERS_JSON > modules/tasks/inputs/updateManagersToUpd.json
+    - echo $STAGE_PROTOCOL_FILE_JSON > modules/tasks/inputs/protocolContracts.json
+    - pnpm hardhat upgradability-test --remote-fetch --update-managers-file modules/tasks/inputs/updateManagersToUpd.json --protocol-file modules/tasks/inputs/protocolContracts.json --batch-size 50 --network hardhat
+    - git reset --hard
+  artifacts:
+    paths:
+      - modules/tasks/reports/
+  only:
+    - dev
+
+notify-of-errors:
+  stage: cd
+  needs: [upgradability-test]
+  script:
+    - if [ -f "/modules/tasks/reports/errors.integration-test.kernelsUpgradeError.json" ]; then exit 1; fi
+    - if [ -f "/modules/tasks/reports/errors.integration-test.kernelsUpgradeGetterMethod.json" ]; then exit 1; fi
+    - if [ -f "/modules/tasks/reports/errors.integration-test.kernelsUpgradeDifferentReturns.json" ]; then exit 1; fi
+    - if [ -f "/modules/tasks/reports/errors.integration-test.protocolUpgradeError.json" ]; then exit 1; fi
+    - if [ -f "/modules/tasks/reports/errors.integration-test.protocolGetterMethodError.json" ]; then exit 1; fi
+    - if [ -f "/modules/tasks/reports/errors.integration-test.protocolDifferentReturnsError.json" ]; then exit 1; fi
+  only:
+    - dev
+
+# update-contracts-on-mainnet:
+#   <<: *hardhat-job-template
+#   stage: cd
+#   needs: [notify-if-errors-happendduring-integration-test-mainnet-fork]
+#   variables:
+#     MAINNET_RPC: $MAINNET_RPC_INTEGRATION_TEST
+#     FORKING_MODE: STAGE
+#     # env for the task are below
+#     MAINNET_UPDATE_MANAGERS_JSON: '[{"contractAddress" : "0xDeB6b06E22A5BdFB2d42000074B46F9C2c3861FE"},{"contractAddress" : "0x41c98A711273800f4275d7eA03161B1810Cf2D03"},{"contractAddress" : "0x0b99dbF8F3d81476BDeE982219a260d01E4E94f0"},{"contractAddress" : "0x2164e9Fa6004896986d2bCc7AC6Ee10A8ad07E00"},{"contractAddress" : "0x99e29A22F56c954Ac51261B69130A88d4ceFf145"},{"contractAddress" : "0xde11959E53ed7bA2B7Ed295c4CE00BDcAd42F587"},{"contractAddress" : "0xe087653B76e2382f55312E43fB0cBD8527527537"},{"contractAddress" : "0x6Eb2F80717F30B2D178443F1Bc919171490d7b97"}]'
+#     MAINNET_PROTOCOL_FILE_JSON: '[{"contractAddress":"0xDeB6b06E22A5BdFB2d42000074B46F9C2c3861FE","app":"UPDATE_MANAGER"},{"contractAddress":"0x41c98A711273800f4275d7eA03161B1810Cf2D03","app":"UPDATE_MANAGER"},{"contractAddress":"0x0b99dbF8F3d81476BDeE982219a260d01E4E94f0","app":"UPDATE_MANAGER"},{"contractAddress":"0x2164e9Fa6004896986d2bCc7AC6Ee10A8ad07E00","app":"UPDATE_MANAGER"},{"contractAddress":"0x99e29A22F56c954Ac51261B69130A88d4ceFf145","app":"UPDATE_MANAGER"},{"contractAddress":"0xde11959E53ed7bA2B7Ed295c4CE00BDcAd42F587","app":"UPDATE_MANAGER"},{"contractAddress":"0xe087653B76e2382f55312E43fB0cBD8527527537","app":"UPDATE_MANAGER"},{"contractAddress":"0x6Eb2F80717F30B2D178443F1Bc919171490d7b97","app":"UPDATE_MANAGER"},{"contractAddress":"0xC7c3c83B9e89645A2616ea94236FD052667fa4a1","app":"DAO_CONSTRUCTOR"},{"contractAddress":"0x08205A2a16963b00e29F67208820BC53fB31Df55","app":"DAO_CONSTRUCTOR"}]'
+#     STAGE_UPDATE_MANAGERS_JSON: '[{"contractAddress":"0x39048a9a1803beF19e65B32f3f1136C370145F92"}]'
+#     STAGE_PROTOCOL_FILE_JSON: '[{"contractAddress":"0x39048a9a1803beF19e65B32f3f1136C370145F92","app":"UPDATE_MANAGER"},{"contractAddress":"0x61DedCcE3a184Fb6b528dbeC9026cf1fa3B14907","app":"DAO_CONSTRUCTOR"}]'
+#   script:
+#     - echo $STAGE_UPDATE_MANAGERS_JSON > modules/tasks/inputs/updateManagersToUpd.json
+#     - echo $STAGE_PROTOCOL_FILE_JSON > modules/tasks/inputs/protocolContracts.json
+#     - pnpm hardhat auto-upgrade --remote-fetch --update-managers-file modules/tasks/inputs/updateManagersToUpd.json --protocol-contracts-file modules/tasks/inputs/protocolContracts.json --failed-kernels-to-file --update-protocol-apps --network hardhat --batch-size 50
+#   only:
+#     - dev
+
+# Publish Artifacts & Typechain-types To Npm on Released Tag (e.g. 1.1.1)
+publish-package-artifacts:
+  stage: cd
+  needs: [unittest]
+  variables:
+    NPM_PUBLISH_TOKEN: $NPM_SUPERDAO_ACCESS_TOKEN
+  script:
+    - pnpm run --filter=@superdao/os npm:publish
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+      variables:
+        PACKAGE_VERSION: "0.0.0-beta.${CI_COMMIT_SHORT_SHA}"
+    - if: '$CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+$/'
+      variables:
+        PACKAGE_VERSION: ${CI_COMMIT_TAG}
